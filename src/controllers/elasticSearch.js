@@ -76,8 +76,8 @@ export async function addQuestionAndAnswer(req, res) {
         if (!question || !tag) {
             return res.status(400).json({ error: "Both question and tag must be provided " });
         }
-        let question_id = await db.addQuestion(question, hasAnswer, tag, answer, rate);
-        await elastic.AddDocument(question_id, question, answer, tag, rate);
+        let result = await db.addQuestion(question, hasAnswer, tag, answer, rate);
+        await elastic.AddDocument(result.questionId, question, result.finalAnswersArray, tag);
 
         return res.status(201).json({ statusCode: 201, message: "Question added successfully" });
 
@@ -114,7 +114,7 @@ export async function updateQuestionAndAnswer(req, res) {
         const question = req.body.question;
         const answer = req.body.answer;
         const tag = req.body.tag;
-        const rate = req.body.rate;
+        let hasAnswer = !answer ? false : true;
         const docId = req.params.id;
 
         if (!docId) {
@@ -130,10 +130,9 @@ export async function updateQuestionAndAnswer(req, res) {
         const updateQuestion = {
             Question: question,
             Answer: answer,
-            Tag: tag,
-            Rate: rate
+            Tag: tag
         };
-        await db.updateQuestion(docId, question, true, tag, answer, rate);
+        await db.updateQuestion(docId, question, hasAnswer, tag, answer);
         await elastic.UpdateDocument(docId, updateQuestion);
 
 

@@ -3,6 +3,6 @@ import {updateAnswerRate} from '../controllers/rate.controller.js';
 
 
 const router = Router();
-router.patch('/rate/:id' , updateAnswerRate);
+router.patch('/rate/:qesid/:ansid' , updateAnswerRate);
 
 export default router;
