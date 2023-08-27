@@ -13,15 +13,3 @@ export async  function findTechnicalKeywords(question) {
     return foundKeywords;
   }
 
-//console.log(findTechnicalKeywords('how to use Node js and Git'))
-
-//   //call the function to get the technical keywords
-//   const foundKeywords = findTechnicalKeywords(questionToSearch);
-//   if (foundKeywords.length > 0) {
-//     console.log("Found technical keywords:", foundKeywords);
-//     for (const keyword of foundKeywords) {
-//       searchQuery(keyword);
-//     }
-//   } else {
-//     console.log("No technical keywords found in the question.");
-//   }

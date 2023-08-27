@@ -1,6 +1,8 @@
 import * as elastic from '../services/elasticSearchService.js';
 import * as db from '../services/question.service.js';
 import { findTechnicalKeywords } from '../utils/searchkeywords.js';
+import { getAnswerFromSlack } from '../utils/slack.utility.js';
+import { getAnswerFromGoogleDocs } from '../utils/google.utilty.js';
 
 export async function getAllQeustions(req, res) {
     try {
@@ -22,8 +24,42 @@ export async function getAnswer(req, res) {
         if (!question) {
             return res.status(400).json({ error: "Question parameter is missing in the query string." });
         }
+        let is_Q_Exist_WithNull = false;
 
-        res.status(200).json(await elastic.SearchForDocument(question))
+
+        let result = await elastic.SearchForDocument(question);
+
+        if (result.length > 0 && result[0]._source.Answer) {
+            return res.status(200).json(result);
+        }
+        else if (result.length > 0 && !result[0]._source.Answer) {
+            is_Q_Exist_WithNull = true;
+        }
+
+        else if (result.length == 0) {
+            is_Q_Exist_WithNull = false;
+            let newQuesion = await db.addQuestion(question, false, null, [], null);
+            await elastic.AddDocument(newQuesion.questionId, question, null, null);
+        }
+
+        let finalReslut = [];
+
+        let resultSlack = await getAnswerFromSlack(question);
+        if (resultSlack.found) {
+            finalReslut.push(...resultSlack.data);
+        }
+        console.log(question);
+        let resultGoogleDocs = await getAnswerFromGoogleDocs(question);
+        if (resultGoogleDocs.length > 0) {
+            console.log(resultGoogleDocs);
+            finalReslut.push(...resultGoogleDocs);
+        }
+
+        if (finalReslut.length == 0) {
+            return res.status(404).json({ statusCode: 404, message: "our team will answer your question as soon as possible." });
+        }
+
+        return res.status(200).json(finalReslut);
 
     } catch (error) {
         console.error("Error:", error);
@@ -57,7 +93,7 @@ export async function getAnswerByMultiMatch(req, res) {
             return res.status(400).json({ error: "Question parameter is missing in the query string." });
         }
         let cleanQuestion = await findTechnicalKeywords(question);
-        
+
         res.status(200).json(await elastic.searchWithMultiMatch(cleanQuestion))
 
     } catch (error) {
