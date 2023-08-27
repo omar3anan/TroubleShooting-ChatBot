@@ -2,8 +2,8 @@ import axios from "axios";
 import { WebClient } from "@slack/web-api";
 import technicalArrayKeyword from './technicalKeywords.js'
 
-const token = "xoxp-5787445408578-5800076744337-5787508119666-58fc99ba708d4a2cef227ea24b1f0c5d";
-const channelId = "C05NQSW5NJ3";
+const token = "";
+const channelId = "";
 const web = new WebClient(token);
 
 

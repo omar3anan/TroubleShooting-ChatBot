@@ -5,7 +5,7 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
-const documentId = "1Mmetl7i8Sapbbof31Ake-yVSuRKWclNSkDPCDeU5LUU"; // Google Doc ID
+const documentId = ""; // Google Doc ID
 app.use(express.json());
 
 app.post("/q-a", async (req, res) => {
